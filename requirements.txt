@@ -1,0 +1,51 @@
+# Where to DINE - Backend Dependencies
+# Python 3.7+
+
+# Web Framework
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+
+# CORS Middleware
+python-multipart==0.0.6
+
+# Geographic Data Processing
+geojson==3.1.0
+shapely==2.0.2
+geopandas==0.14.1
+
+# Data Processing
+pandas==2.1.3
+numpy==1.26.2
+
+# HTTP Requests
+requests==2.31.0
+
+# Environment Variables
+python-dotenv==1.0.0
+
+# JSON Processing (included in standard library, but explicit version for compatibility)
+# json - built-in
+
+# Optional: Database Support (if needed)
+# sqlalchemy==2.0.23
+# psycopg2-binary==2.9.9  # PostgreSQL with PostGIS
+
+# Optional: Caching (if implementing Redis cache)
+# redis==5.0.1
+
+# Optional: Testing
+# pytest==7.4.3
+# pytest-asyncio==0.21.1
+# httpx==0.25.2  # For testing FastAPI endpoints
+
+# Optional: API Documentation Enhancement
+# pydantic==2.5.0  # Usually comes with FastAPI
+
+# Optional: Logging
+# python-json-logger==2.0.7
+
+# Development Dependencies (uncomment for development)
+# black==23.11.0          # Code formatter
+# flake8==6.1.0           # Linter
+# mypy==1.7.1             # Type checker
+# isort==5.12.0           # Import sorter
