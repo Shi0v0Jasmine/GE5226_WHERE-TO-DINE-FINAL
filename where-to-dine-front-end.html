@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Where to DINE? - Recommendation System</title>
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background-color: #1a1a1a;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            overflow: hidden; /* 防止出现不必要的滚动条 */
+        }
+        .main-container {
+            display: flex;
+            height: 100vh;
+        }
+        #sidebar {
+            width: 30%;
+            max-width: 400px;
+            min-width: 300px;
+            padding: 1.5rem;
+            background-color: #212529;
+            color: #f8f9fa;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.5);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        #map-container {
+            flex-grow: 1;
+            height: 100%;
+        }
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+        .control-card {
+            background-color: #343a40;
+            border: none;
+            margin-bottom: 1.5rem;
+        }
+        #results-list .list-group-item {
+            background-color: #495057;
+            color: #f8f9fa;
+            border-color: #6c757d;
+            margin-bottom: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #results-list .list-group-item:hover {
+            background-color: #6c757d;
+        }
+        #results-list .list-group-item small {
+            color: #ffc107;
+        }
+        .leaflet-popup-content-wrapper {
+            background: #2a2a2a;
+            color: #f0f0f0;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body class="text-light">
+
+<div class="main-container">
+    
+    <div id="sidebar">
+        <h3 class="mb-3" style="color: #ffc107;">Where to DINE?</h3>
+        <p class="text-muted">Click the map to set your origin, then press Search.</p>
+
+        <div class="card control-card text-light">
+            <div class="card-body">
+                <h5 class="card-title">Travel Mode</h5>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="mode" id="mode-walking" value="walking" checked>
+                    <label class="form-check-label" for="mode-walking"><i class="bi bi-person-walking"></i> Walking</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="mode" id="mode-driving" value="driving">
+                    <label class="form-check-label" for="mode-driving"><i class="bi bi-car-front-fill"></i> Driving</label>
+                </div>
+
+                <h5 class="card-title mt-4">Travel Time</h5>
+                <label for="time-slider" class="form-label">Minutes: <span id="slider-value">15</span> min</label>
+                <input type="range" class="form-range" min="5" max="60" step="5" value="15" id="time-slider">
+
+                <button id="search-btn" class="btn btn-primary w-100 mt-3">
+                    <i class="bi bi-search"></i> Find Recommendations
+                </button>
+            </div>
+        </div>
+
+        <h4 class="mt-4">Recommendations</h4>
+        <small id="status" class="text-muted">Please set an origin and click Search.</small>
+        <div id="results-list" class="list-group list-group-flush mt-2">
+            </div>
+    </div>
+
+    <div id="map-container">
+        <div id="map"></div>
+    </div>
+</div>
+
+<script>
+    // *** [ 修正 1 ] ***
+    // 强制所有 JS 等待 DOM 加载完毕
+    document.addEventListener("DOMContentLoaded", function() {
+
+        // --- 关键变量 ---
+        const BACKEND_URL = "http://127.0.0.1:8000";
+        const MAPBOX_TOKEN = "pk.eyJ1IjoiamFzbWluZTB2MCIsImEiOiJjbWkwbTF1ejMwbzlnMmtxNGVqN2pvdXVoIn0.EQRczgzFqAndRDGJaxRCWg"; // <--- !!! 确保您已替换这里 !!!
+
+        if (MAPBOX_TOKEN.includes("YOUR...TOKEN")) {
+            alert("ERROR: Please paste your Mapbox Access Token into the MAPBOX_TOKEN variable in index.html!");
+        }
+
+        // --- A. 初始化地图 (使用 app.py 的 dark-matter 主题) ---
+        const map = L.map('map').setView([40.730610, -73.935242], 12);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            subdomains: 'abcd',
+            maxZoom: 20
+        }).addTo(map);
+
+
+        // *** [ 修正 2: 解决空白地图问题 ] ***
+        // 这是一个强制性修复，用于解决 Leaflet 在 Bootstrap/Flexbox 中
+        // 无法正确获取容器高度 的问题。
+        // 我们在100毫秒后强制 Leaflet 重新检查其大小。
+        setTimeout(function() {
+            map.invalidateSize();
+        }, 100);
+
+
+        // --- B. 定义图层样式 ---
+        const style_all_hotspots = {
+            color: "#6c757d", weight: 1, fillColor: "#6c757d", fillOpacity: 0.1, dashArray: '4'
+        };
+        const style_isochrone = {
+            color: "#0d6efd", weight: 2, fillColor: "#0d6efd", fillOpacity: 0.2
+        };
+        const style_recommended_pt = {
+            radius: 6, color: "#ffc107", weight: 1, fillColor: "#ffc107", fillOpacity: 0.8
+        };
+
+        // --- C. 创建图层组和状态变量 ---
+        const hotspotsLayer = L.layerGroup().addTo(map);
+        const isoLayer = L.layerGroup().addTo(map);
+        const recommendedLayer = L.layerGroup().addTo(map);
+        const markerLayer = L.layerGroup().addTo(map);
+        
+        let userOrigin = null;
+        const statusEl = document.getElementById('status');
+        const resultsListEl = document.getElementById('results-list');
+        const sliderValueEl = document.getElementById('slider-value');
+
+        // --- D. 函数 1: 加载所有热点背景 ---
+        async function loadAllHotspots() {
+            try {
+                statusEl.textContent = "Loading all hotspot areas...";
+                const response = await fetch(`${BACKEND_URL}/api/hotspots`);
+                const rawData = await response.json(); 
+                const geojsonData = JSON.parse(rawData);
+
+                L.geoJSON(geojsonData, { style: style_all_hotspots }).addTo(hotspotsLayer);
+                statusEl.textContent = "Please set an origin and click Search.";
+            } catch (e) {
+                console.error(e);
+                statusEl.innerHTML = `<b>Error:</b> Could not connect to backend API.<br>Please ensure <b>main.py</b> is running at <b>${BACKEND_URL}</b>`;
+            }
+        }
+        
+        // --- E. 函数 2: 地图点击 (只设置起点) ---
+        function handleMapClick(e) {
+            markerLayer.clearLayers();
+            userOrigin = e.latlng;
+            L.marker(e.latlng).addTo(markerLayer);
+            statusEl.textContent = "Origin set. Click 'Find Recommendations' to search.";
+        }
+
+        // --- F. 函数 3: 执行搜索 (核心功能) ---
+        async function handleSearch() {
+            if (!userOrigin) {
+                alert("Please click on the map to set an origin point first.");
+                return;
+            }
+
+            isoLayer.clearLayers();
+            recommendedLayer.clearLayers();
+            resultsListEl.innerHTML = "";
+            
+            const { lat, lng } = userOrigin;
+            const mode = document.querySelector('input[name="mode"]:checked').value;
+            const time = document.getElementById('time-slider').value;
+
+            statusEl.textContent = `Querying ${time} min ${mode} range...`;
+
+            // --- 4. [API 调用 1] - 调用 Mapbox 获取等时圈 ---
+            const mapbox_url = `https://api.mapbox.com/isochrone/v1/mapbox/${mode}/${lng},${lat}?contours_minutes=${time}&polygons=true&access_token=${MAPBOX_TOKEN}`;
+            
+            let mapBounds;
+            try {
+                const isoResponse = await fetch(mapbox_url);
+                const isoData = await isoResponse.json();
+                const isoFeature = L.geoJSON(isoData, { style: style_isochrone }).addTo(isoLayer);
+                mapBounds = isoFeature.getBounds();
+            } catch (e) {
+                console.error(e);
+                statusEl.textContent = "Error: Mapbox API call failed. Check token?";
+                return;
+            }
+
+            // --- 5. [API 调用 2] - 调用后端 API 获取推荐的 *餐厅* ---
+            statusEl.textContent = "Fetching recommended restaurants...";
+            const recommend_url = `${BACKEND_URL}/api/recommend?lat=${lat}&lon=${lng}&mode=${mode}&minutes=${time}`;
+            
+            try {
+                const recResponse = await fetch(recommend_url);
+                const rawRecData = await recResponse.json();
+                const recGeojsonData = JSON.parse(rawRecData);
+
+                if (!recGeojsonData.features || recGeojsonData.features.length === 0) {
+                    statusEl.textContent = "No hotspots found within this range.";
+                    map.fitBounds(mapBounds);
+                    return;
+                }
+                
+                // --- 6. [新] 渲染餐厅列表和地图点 ---
+                statusEl.textContent = `Found ${recGeojsonData.features.length} recommended restaurants (sorted by score).`;
+
+                recGeojsonData.features.forEach((feature, index) => {
+                    const props = feature.properties;
+                    const coords = feature.geometry.coordinates;
+                    const latLng = [coords[1], coords[0]];
+
+                    // A. 渲染到列表
+                    const listItem = document.createElement('a');
+                    listItem.href = "#";
+                    listItem.className = "list-group-item list-group-item-action";
+                    listItem.innerHTML = `
+                        <b>${index + 1}. ${props.name}</b>
+                        <br>
+                        <small>Zone: ${props.zone} | Score: ${props.weighted_score.toFixed(0)}</small>
+                    `;
+                    listItem.onclick = (e) => {
+                        e.preventDefault();
+                        map.flyTo(latLng, 16);
+                    };
+                    resultsListEl.appendChild(listItem);
+
+                    // B. 渲染到地图
+                    const marker = L.circleMarker(latLng, style_recommended_pt).addTo(recommendedLayer);
+                    marker.bindPopup(
+                        `<b>⭐ ${props.name} ⭐</b><br>` +
+                        `Address: ${props.address || 'N/A'}<br>` +
+                        `Zone: ${props.zone}<br>` +
+                        `Weighted Score: ${props.weighted_score.toFixed(0)}`
+                    );
+                });
+                
+                map.fitBounds(recommendedLayer.getBounds().pad(0.1));
+
+            } catch (e) {
+                console.error(e);
+                statusEl.textContent = "Error: Failed to fetch recommendations from backend.";
+            }
+        }
+        
+        // --- G. 启动应用 ---
+        map.on('click', handleMapClick);
+        document.getElementById('search-btn').addEventListener('click', handleSearch);
+        document.getElementById('time-slider').addEventListener('input', (e) => {
+            sliderValueEl.textContent = e.target.value;
+        });
+
+        loadAllHotspots();
+
+    }); // *** [ 修正 1 ] *** 结束 DOMContentLoaded 监听器
+
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
