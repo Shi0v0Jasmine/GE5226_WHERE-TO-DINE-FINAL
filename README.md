@@ -13,10 +13,15 @@
 ### Key Highlights
 
 ✨ **Real-time Isochrone Visualization** - See exactly where you can reach in 5-60 minutes
+
 🎯 **Smart Recommendations** - Weighted scoring system considering quality, density, and accessibility
+
 🚶🚗 **Multi-modal Travel** - Support for both walking and driving modes
+
 🗺️ **Interactive Map Interface** - Intuitive map-based interaction with Leaflet.js
+
 📱 **Responsive Design** - Modern dark theme UI optimized for all devices
+
 🔄 **Real-time Updates** - Dynamic data loading and seamless map-list synchronization
 
 ---
