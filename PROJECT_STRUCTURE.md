@@ -1,11 +1,11 @@
-# Where to DINE - 项目结构图
+# Where to DINE - Project Structure Diagram
 
-## 项目概述
-**Where to DINE** 是一个基于地理位置的餐厅推荐系统，允许用户在地图上选择起点，然后根据出行方式和时间找到推荐的餐厅热点区域。
+## Project Overview
+**Where to DINE** is a location-based restaurant recommendation system that allows users to select an origin point on a map, then find recommended restaurant hotspot areas based on travel mode and time.
 
 ---
 
-## 系统架构
+## System Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -16,187 +16,188 @@
         │                                     │
         ▼                                     ▼
 ┌───────────────┐                    ┌───────────────┐
-│   前端层       │                    │   后端层       │
-│  (Frontend)   │ ◄────HTTP────►     │  (Backend)    │
+│  Frontend     │                    │   Backend     │
+│    Layer      │ ◄────HTTP────►     │    Layer      │
 └───────────────┘                    └───────────────┘
         │                                     │
         │                                     │
         ▼                                     ▼
 ┌───────────────┐                    ┌───────────────┐
-│  第三方API     │                    │   数据层       │
+│ Third-party   │                    │     Data      │
+│     APIs      │                    │     Layer     │
 │ (Mapbox API)  │                    │  (Database)   │
 └───────────────┘                    └───────────────┘
 ```
 
 ---
 
-## 项目文件结构
+## Project File Structure
 
 ```
 GE5226_WHERE-TO-DINE-FINAL/
 │
-├── .git/                                    # Git版本控制目录
+├── .git/                                    # Git version control directory
 │
-├── where-to-dine-front-end.html            # 前端主文件（已删除）
-│   └── 功能：
-│       ├── 交互式地图界面（Leaflet）
-│       ├── 用户输入控制面板
-│       ├── 等时圈可视化
-│       └── 推荐餐厅列表展示
+├── where-to-dine-front-end.html            # Frontend main file (deleted)
+│   └── Features:
+│       ├── Interactive map interface (Leaflet)
+│       ├── User input control panel
+│       ├── Isochrone visualization
+│       └── Recommended restaurant list display
 │
-└── [后端文件] (未在仓库中)
-    ├── main.py / app.py                    # 后端API服务器（推测）
-    │   └── API端点：
-    │       ├── /api/hotspots               # 获取所有热点区域
-    │       └── /api/recommend              # 获取推荐餐厅
+└── [Backend Files] (not in repository)
+    ├── main.py / app.py                    # Backend API server (inferred)
+    │   └── API endpoints:
+    │       ├── /api/hotspots               # Get all hotspot areas
+    │       └── /api/recommend              # Get recommended restaurants
     │
-    └── [数据文件]                           # 餐厅和热点数据（推测）
+    └── [Data Files]                        # Restaurant and hotspot data (inferred)
 ```
 
 ---
 
-## 技术栈详情
+## Technology Stack Details
 
-### 前端技术栈
+### Frontend Stack
 
-| 技术 | 版本 | 用途 |
-|------|------|------|
-| **HTML5** | - | 页面结构 |
-| **CSS3** | - | 样式设计（深色主题） |
-| **JavaScript** | ES6+ | 交互逻辑 |
-| **Leaflet.js** | 1.9.4 | 地图渲染和交互 |
-| **Bootstrap** | 5.3.3 | UI组件和响应式布局 |
-| **Bootstrap Icons** | 1.11.3 | 图标库 |
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| **HTML5** | - | Page structure |
+| **CSS3** | - | Styling (dark theme) |
+| **JavaScript** | ES6+ | Interactive logic |
+| **Leaflet.js** | 1.9.4 | Map rendering and interaction |
+| **Bootstrap** | 5.3.3 | UI components and responsive layout |
+| **Bootstrap Icons** | 1.11.3 | Icon library |
 
-### 后端技术栈（推测）
+### Backend Stack (Inferred)
 
-| 技术 | 用途 |
-|------|------|
-| **Python** | 后端开发语言 |
-| **FastAPI/Flask** | Web框架（根据端口8000推测） |
-| **GeoJSON** | 地理数据格式 |
+| Technology | Purpose |
+|------------|---------|
+| **Python** | Backend programming language |
+| **FastAPI/Flask** | Web framework (inferred from port 8000) |
+| **GeoJSON** | Geographic data format |
 
-### 第三方服务
+### Third-party Services
 
-| 服务 | 用途 |
-|------|------|
-| **Mapbox Isochrone API** | 生成等时圈（可达范围） |
-| **CartoDB Dark Matter** | 地图底图瓦片服务 |
-
----
-
-## 核心功能模块
-
-### 1. 地图交互模块
-```
-┌─────────────────────────────────┐
-│      地图交互 (Map Module)       │
-├─────────────────────────────────┤
-│ • 地图初始化（Leaflet）          │
-│ • 点击设置起点                   │
-│ • 图层管理：                     │
-│   - hotspotsLayer (热点背景)     │
-│   - isoLayer (等时圈)            │
-│   - recommendedLayer (推荐点)    │
-│   - markerLayer (用户标记)       │
-└─────────────────────────────────┘
-```
-
-### 2. 用户控制模块
-```
-┌─────────────────────────────────┐
-│    控制面板 (Control Panel)      │
-├─────────────────────────────────┤
-│ • 出行方式选择：                 │
-│   - 步行 (walking)               │
-│   - 驾车 (driving)               │
-│ • 时间范围滑块：5-60分钟         │
-│ • 搜索按钮                       │
-└─────────────────────────────────┘
-```
-
-### 3. 数据处理模块
-```
-┌─────────────────────────────────┐
-│   数据处理 (Data Processing)     │
-├─────────────────────────────────┤
-│ • 加载所有热点区域               │
-│ • 获取Mapbox等时圈数据           │
-│ • 请求后端推荐算法               │
-│ • GeoJSON数据解析                │
-│ • 结果排序（按加权评分）         │
-└─────────────────────────────────┘
-```
-
-### 4. 结果展示模块
-```
-┌─────────────────────────────────┐
-│   结果展示 (Results Display)     │
-├─────────────────────────────────┤
-│ • 侧边栏列表展示：               │
-│   - 餐厅名称                     │
-│   - 区域 (Zone)                  │
-│   - 加权评分                     │
-│ • 地图标记展示：                 │
-│   - 圆形标记（黄色）             │
-│   - 弹出信息框                   │
-│ • 点击列表项跳转到地图位置       │
-└─────────────────────────────────┘
-```
+| Service | Purpose |
+|---------|---------|
+| **Mapbox Isochrone API** | Generate isochrones (reachability areas) |
+| **CartoDB Dark Matter** | Map tile service for base layer |
 
 ---
 
-## 数据流图
+## Core Functional Modules
+
+### 1. Map Interaction Module
+```
+┌─────────────────────────────────┐
+│        Map Module                │
+├─────────────────────────────────┤
+│ • Map initialization (Leaflet)   │
+│ • Click to set origin point      │
+│ • Layer management:              │
+│   - hotspotsLayer (background)   │
+│   - isoLayer (isochrone)         │
+│   - recommendedLayer (points)    │
+│   - markerLayer (user marker)    │
+└─────────────────────────────────┘
+```
+
+### 2. User Control Module
+```
+┌─────────────────────────────────┐
+│       Control Panel              │
+├─────────────────────────────────┤
+│ • Travel mode selection:         │
+│   - Walking                      │
+│   - Driving                      │
+│ • Time range slider: 5-60 mins   │
+│ • Search button                  │
+└─────────────────────────────────┘
+```
+
+### 3. Data Processing Module
+```
+┌─────────────────────────────────┐
+│      Data Processing             │
+├─────────────────────────────────┤
+│ • Load all hotspot areas         │
+│ • Fetch Mapbox isochrone data    │
+│ • Request backend recommendation │
+│ • Parse GeoJSON data             │
+│ • Sort results by weighted score │
+└─────────────────────────────────┘
+```
+
+### 4. Results Display Module
+```
+┌─────────────────────────────────┐
+│      Results Display             │
+├─────────────────────────────────┤
+│ • Sidebar list display:          │
+│   - Restaurant name              │
+│   - Zone                         │
+│   - Weighted score               │
+│ • Map marker display:            │
+│   - Circle markers (yellow)      │
+│   - Popup info windows           │
+│ • Click list item to fly to map  │
+└─────────────────────────────────┘
+```
+
+---
+
+## Data Flow Diagram
 
 ```
-用户操作
+User Actions
   │
-  ├─ 1. 点击地图设置起点
-  │     └─► 在 markerLayer 创建标记
+  ├─ 1. Click map to set origin
+  │     └─► Create marker in markerLayer
   │
-  ├─ 2. 选择出行方式 & 时间
-  │     └─► 更新控制面板状态
+  ├─ 2. Select travel mode & time
+  │     └─► Update control panel state
   │
-  └─ 3. 点击"查找推荐"按钮
+  └─ 3. Click "Find Recommendations" button
         │
-        ├─► API调用1: Mapbox Isochrone API
-        │   └─► 返回等时圈 GeoJSON
-        │       └─► 渲染到 isoLayer
+        ├─► API Call 1: Mapbox Isochrone API
+        │   └─► Return isochrone GeoJSON
+        │       └─► Render to isoLayer
         │
-        └─► API调用2: 后端 /api/recommend
-            ├─ 参数: lat, lon, mode, minutes
+        └─► API Call 2: Backend /api/recommend
+            ├─ Parameters: lat, lon, mode, minutes
             │
-            └─► 返回推荐餐厅 GeoJSON
-                ├─► 渲染到地图 (recommendedLayer)
-                └─► 渲染到侧边栏列表 (results-list)
+            └─► Return recommended restaurants GeoJSON
+                ├─► Render to map (recommendedLayer)
+                └─► Render to sidebar list (results-list)
 ```
 
 ---
 
-## API接口规范
+## API Specification
 
-### 后端API端点
+### Backend API Endpoints
 
-#### 1. 获取所有热点区域
+#### 1. Get All Hotspot Areas
 ```
 GET /api/hotspots
-Response: GeoJSON字符串
+Response: GeoJSON string
 {
   "type": "FeatureCollection",
   "features": [...]
 }
 ```
 
-#### 2. 获取推荐餐厅
+#### 2. Get Recommended Restaurants
 ```
 GET /api/recommend?lat={lat}&lon={lon}&mode={mode}&minutes={minutes}
-参数：
-  - lat: 纬度
-  - lon: 经度
-  - mode: 出行方式 (walking/driving)
-  - minutes: 时间范围 (5-60)
+Parameters:
+  - lat: Latitude
+  - lon: Longitude
+  - mode: Travel mode (walking/driving)
+  - minutes: Time range (5-60)
 
-Response: GeoJSON字符串
+Response: GeoJSON string
 {
   "type": "FeatureCollection",
   "features": [
@@ -207,10 +208,10 @@ Response: GeoJSON字符串
         "coordinates": [lon, lat]
       },
       "properties": {
-        "name": "餐厅名称",
-        "address": "地址",
-        "zone": "区域",
-        "weighted_score": 分数
+        "name": "Restaurant name",
+        "address": "Address",
+        "zone": "Zone",
+        "weighted_score": score
       }
     },
     ...
@@ -220,33 +221,35 @@ Response: GeoJSON字符串
 
 ---
 
-## UI设计规范
+## UI Design Specification
 
-### 配色方案
-- **主背景**: `#1a1a1a` (深黑色)
-- **侧边栏**: `#212529` (深灰色)
-- **卡片背景**: `#343a40` (中灰色)
-- **列表项**: `#495057` (浅灰色)
-- **列表悬停**: `#6c757d` (更浅灰色)
-- **主题色**: `#ffc107` (黄色 - 用于标题和标记)
-- **文字**: `#f8f9fa` (浅色文字)
+### Color Scheme
+- **Primary Background**: `#1a1a1a` (deep black)
+- **Sidebar**: `#212529` (dark gray)
+- **Card Background**: `#343a40` (medium gray)
+- **List Items**: `#495057` (light gray)
+- **List Hover**: `#6c757d` (lighter gray)
+- **Theme Color**: `#ffc107` (yellow - for titles and markers)
+- **Text**: `#f8f9fa` (light text)
 
-### 布局结构
+### Layout Structure
 ```
 ┌──────────────────────────────────────────────┐
 │                 100vh                         │
 ├─────────────┬────────────────────────────────┤
 │             │                                 │
 │  Sidebar    │        Map Container           │
-│  (30%宽度)  │        (剩余空间)                │
-│  最大400px  │                                 │
-│  最小300px  │        Leaflet Map             │
-│             │        (100%宽高)               │
+│  (30% width)│        (remaining space)        │
+│  Max 400px  │                                 │
+│  Min 300px  │        Leaflet Map             │
+│             │        (100% width & height)    │
 │  ┌────────┐│                                 │
-│  │控制面板 ││                                 │
+│  │Control ││                                 │
+│  │ Panel  ││                                 │
 │  └────────┘│                                 │
 │  ┌────────┐│                                 │
-│  │推荐列表 ││                                 │
+│  │Results ││                                 │
+│  │  List  ││                                 │
 │  └────────┘│                                 │
 │             │                                 │
 └─────────────┴────────────────────────────────┘
@@ -254,84 +257,84 @@ Response: GeoJSON字符串
 
 ---
 
-## 关键特性
+## Key Features
 
-1. **响应式设计**: 使用Flexbox布局，适配不同屏幕尺寸
-2. **深色主题**: 现代化的深色UI界面
-3. **实时交互**: 地图点击即时反馈，列表点击跳转地图
-4. **等时圈可视化**: 直观显示可达范围
-5. **智能推荐**: 基于加权评分的餐厅排序
-6. **双重展示**: 地图标记 + 侧边栏列表
-
----
-
-## 技术亮点
-
-1. **DOM加载优化**: 使用`DOMContentLoaded`确保脚本在DOM加载后执行
-2. **地图渲染修复**: 使用`invalidateSize()`解决Flexbox中Leaflet空白问题
-3. **图层管理**: 使用多个`LayerGroup`实现清晰的图层分离
-4. **异步数据处理**: 使用`async/await`处理API调用
-5. **错误处理**: 完善的try-catch错误捕获机制
+1. **Responsive Design**: Uses Flexbox layout, adapts to different screen sizes
+2. **Dark Theme**: Modern dark UI interface
+3. **Real-time Interaction**: Instant map click feedback, list click to fly to map
+4. **Isochrone Visualization**: Intuitive display of reachability areas
+5. **Smart Recommendations**: Restaurant ranking based on weighted scores
+6. **Dual Display**: Map markers + sidebar list
 
 ---
 
-## 部署要求
+## Technical Highlights
 
-### 前端部署
-- 任何静态Web服务器（如Nginx、Apache）
-- 或直接通过浏览器打开HTML文件
+1. **DOM Load Optimization**: Uses `DOMContentLoaded` to ensure scripts execute after DOM loads
+2. **Map Rendering Fix**: Uses `invalidateSize()` to solve Leaflet blank map issue in Flexbox
+3. **Layer Management**: Uses multiple `LayerGroup` for clear layer separation
+4. **Async Data Processing**: Uses `async/await` for API calls
+5. **Error Handling**: Comprehensive try-catch error catching mechanism
 
-### 后端部署
+---
+
+## Deployment Requirements
+
+### Frontend Deployment
+- Any static web server (e.g., Nginx, Apache)
+- Or open HTML file directly in browser
+
+### Backend Deployment
 - Python 3.7+
-- 后端服务器需运行在 `http://127.0.0.1:8000`
+- Backend server must run at `http://127.0.0.1:8000`
 
-### 环境变量
-- **MAPBOX_TOKEN**: 需要有效的Mapbox访问令牌
+### Environment Variables
+- **MAPBOX_TOKEN**: Valid Mapbox access token required
 
 ---
 
-## 开发状态
+## Development Status
 
-### Git历史
+### Git History
 ```
-cb3cffd - Delete where-to-dine-front-end.html (当前HEAD)
+cb3cffd - Delete where-to-dine-front-end.html (current HEAD)
 aad7641 - Add files via upload
 ```
 
-### 当前状态
-- 前端HTML文件已被删除
-- 项目处于空白状态
-- 后端文件不在版本控制中
+### Current Status
+- Frontend HTML file has been deleted
+- Project is in blank state
+- Backend files are not in version control
 
 ---
 
-## 建议的项目完整结构
+## Recommended Complete Project Structure
 
 ```
 GE5226_WHERE-TO-DINE-FINAL/
 │
 ├── frontend/
-│   ├── index.html                  # 前端主文件
+│   ├── index.html                  # Frontend main file
 │   ├── css/
-│   │   └── style.css               # 独立样式文件
+│   │   └── style.css               # Separate stylesheet
 │   └── js/
-│       └── app.js                  # 独立JavaScript文件
+│       └── app.js                  # Separate JavaScript file
 │
 ├── backend/
-│   ├── main.py                     # FastAPI/Flask服务器
-│   ├── requirements.txt            # Python依赖
+│   ├── main.py                     # FastAPI/Flask server
+│   ├── requirements.txt            # Python dependencies
 │   ├── models/
-│   │   └── recommendation.py       # 推荐算法模型
+│   │   └── recommendation.py       # Recommendation algorithm model
 │   └── data/
-│       ├── hotspots.geojson        # 热点区域数据
-│       └── restaurants.geojson     # 餐厅数据
+│       ├── hotspots.geojson        # Hotspot area data
+│       └── restaurants.geojson     # Restaurant data
 │
-├── .gitignore                      # Git忽略规则
-├── README.md                       # 项目说明文档
-└── PROJECT_STRUCTURE.md            # 本结构文档
+├── .gitignore                      # Git ignore rules
+├── README.md                       # Project documentation
+└── PROJECT_STRUCTURE.md            # This structure document
 ```
 
 ---
 
-**文档生成时间**: 2025-11-16
-**项目状态**: 需要恢复文件并完善后端代码
+**Document Generated**: 2025-11-16
+**Project Status**: Files need to be restored and backend code needs to be completed
